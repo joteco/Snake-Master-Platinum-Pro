@@ -1,0 +1,1936 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snake Master Platinum Pro - Ultimate Edition</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&display=swap');
+        
+        :root {
+            --primary-color: #00d4ff;
+            --secondary-color: #ff0080;
+            --accent-color: #00ff88;
+            --danger-color: #ff3366;
+            --warning-color: #ffaa00;
+            --success-color: #00ff66;
+            --glass-bg: rgba(255, 255, 255, 0.08);
+            --glass-border: rgba(255, 255, 255, 0.15);
+            --dark-bg: #0a0a0f;
+            --gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-2: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --gradient-3: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --neon-glow-primary: 0 0 10px var(--primary-color), 0 0 20px var(--primary-color), 0 0 30px var(--primary-color);
+            --neon-glow-accent: 0 0 10px var(--accent-color), 0 0 20px var(--accent-color), 0 0 30px var(--accent-color);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Orbitron', monospace;
+            background: radial-gradient(ellipse at center, #1a1a2e 0%, #16213e 35%, #0f0f0f 100%);
+            color: #ffffff;
+            overflow-x: hidden;
+            position: relative;
+            min-height: 100vh;
+            display: flex; /* For centering loading screen initially */
+            align-items: center; /* For centering loading screen initially */
+            justify-content: center; /* For centering loading screen initially */
+        }
+        
+        /* Background Effects */
+        .background-effects-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        .neural-network, .particle-system, .floating-elements {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        .neural-network { opacity: 0.1; }
+        .particle-system { opacity: 0.5; }
+
+        .floating-element {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            animation: float 15s infinite linear;
+            box-shadow: 0 0 10px currentColor;
+            opacity: 0;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100px) rotate(360deg); opacity: 0; }
+        }
+
+        /* Game Container */
+        .game-container {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 15px; /* Reduced padding for smaller screens */
+            gap: 15px; /* Reduced gap */
+            width: 100%;
+            max-width: 1200px; /* Max width for larger screens */
+            margin: auto; /* Center container */
+            opacity: 0; /* Hidden initially, shown after loading */
+            transition: opacity 0.5s ease-in-out;
+        }
+        .game-container.loaded {
+            opacity: 1;
+        }
+
+
+        .premium-header {
+            text-align: center;
+            margin-bottom: 15px;
+            animation: slideInDown 1s ease-out;
+        }
+
+        .game-title {
+            font-size: clamp(1.8rem, 4vw, 3.5rem); /* Adjusted for responsiveness */
+            font-weight: 900;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color), var(--accent-color));
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradientFlow 3s ease infinite, titlePulse 2s ease-in-out infinite alternate;
+            text-shadow: 0 0 5px var(--primary-color), 0 0 10px var(--primary-color); /* Simpler shadow */
+            position: relative;
+        }
+         .game-title::before { /* Removed shimmer as it can be distracting */
+            content: '';
+        }
+
+        @keyframes gradientFlow {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        @keyframes titlePulse {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.02); }
+        }
+        @keyframes slideInDown {
+            from { transform: translateY(-30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        /* Stats Dashboard */
+        .stats-dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); /* Responsive columns */
+            gap: 10px;
+            margin: 15px 0;
+            width: 100%;
+            max-width: 700px; /* Max width */
+            animation: slideInUp 1s ease-out 0.3s both;
+        }
+        .stat-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px); /* Slightly less blur */
+            border: 1px solid var(--glass-border);
+            border-radius: 15px; /* Slightly smaller radius */
+            padding: 15px; /* Reduced padding */
+            text-align: center;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2); /* Softer shadow */
+        }
+        .stat-card:hover {
+            transform: translateY(-5px) scale(1.03);
+            box-shadow: 0 10px 30px rgba(0,0,0, 0.3);
+            border-color: var(--primary-color);
+        }
+        .stat-value {
+            font-size: clamp(1.5rem, 3vw, 2rem); /* Responsive font size */
+            font-weight: 700;
+            background: linear-gradient(45deg, var(--primary-color), var(--accent-color));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 5px;
+        }
+        .stat-label {
+            font-size: clamp(0.7rem, 1.5vw, 0.8rem); /* Responsive font size */
+            opacity: 0.8;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        @keyframes slideInUp {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        /* Game Modes */
+        .game-modes {
+            display: flex; /* Changed to flex for better wrapping */
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 15px 0;
+            width: 100%;
+            max-width: 900px; /* Max width */
+            justify-content: center;
+        }
+        .mode-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 2px solid transparent;
+            border-radius: 12px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 150px; /* Min width for cards */
+            flex-grow: 1; /* Allow cards to grow */
+            text-align: center;
+        }
+        .mode-card:hover, .mode-card.active {
+            border-color: var(--primary-color);
+            transform: scale(1.02);
+            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.2);
+        }
+        .mode-title {
+            font-size: clamp(1rem, 2vw, 1.1rem);
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--primary-color);
+        }
+        .mode-description {
+            font-size: clamp(0.75rem, 1.5vw, 0.8rem);
+            opacity: 0.8;
+            line-height: 1.3;
+        }
+
+        /* Game Board */
+        .game-board-container {
+            position: relative;
+            margin: 15px 0;
+            width: 100%;
+            max-width: 600px; /* Default max-width, JS will adjust */
+            aspect-ratio: 3 / 2; /* Maintain aspect ratio, JS will adjust */
+        }
+        .game-board {
+            position: relative;
+            background: rgba(0, 0, 0, 0.5); /* Darker, more solid bg */
+            border: 3px solid transparent;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.2), inset 0 0 30px rgba(0, 0, 0, 0.4);
+            width: 100%;
+            height: 100%;
+        }
+        .game-board::before {
+            content: '';
+            position: absolute;
+            top: -3px; left: -3px; right: -3px; bottom: -3px;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color), var(--accent-color));
+            border-radius: 20px;
+            z-index: -1;
+            animation: borderGlow 3s ease infinite;
+        }
+        @keyframes borderGlow {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 0.8; }
+        }
+        .game-canvas {
+            display: block;
+            background: transparent;
+            border-radius: 17px; /* Inner radius */
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Controls */
+        .control-panel {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            align-items: center;
+            margin: 15px 0;
+        }
+        .premium-btn {
+            padding: 12px 25px; /* Slightly smaller */
+            border: none;
+            border-radius: 30px;
+            font-family: 'Orbitron', monospace;
+            font-weight: 700;
+            font-size: clamp(0.8rem, 2vw, 0.9rem);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            min-width: 100px;
+            backdrop-filter: blur(5px);
+        }
+        .premium-btn::before { /* Hover shimmer effect */
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+            transition: left 0.5s;
+        }
+        .premium-btn:hover::before { left: 100%; }
+        .btn-primary {
+            background: linear-gradient(45deg, var(--primary-color), var(--accent-color));
+            color: var(--dark-bg); /* Better contrast */
+            box-shadow: 0 5px 15px rgba(0, 212, 255, 0.3);
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 212, 255, 0.4);
+        }
+        .btn-secondary {
+            background: var(--glass-bg);
+            color: white;
+            border: 1px solid var(--glass-border);
+        }
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+        .btn-danger {
+            background: linear-gradient(45deg, var(--danger-color), #ff5577);
+            color: white;
+        }
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(255, 51, 102, 0.4);
+        }
+
+        /* Mobile Controls */
+        .mobile-controls {
+            display: none; /* Hidden by default, shown via JS/media query */
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            gap: 8px;
+            width: 180px; /* Smaller D-pad */
+            height: 180px;
+            margin: 15px auto;
+            position: relative;
+        }
+        .mobile-btn {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px; /* More squarish */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem; /* Larger icons */
+            color: var(--primary-color);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            backdrop-filter: blur(5px);
+        }
+        .mobile-btn:hover {
+            background: rgba(0, 212, 255, 0.15);
+            border-color: var(--primary-color);
+        }
+        .mobile-btn:active { transform: scale(0.9); }
+        #upBtn { grid-area: 1 / 2 / 2 / 3; }
+        #leftBtn { grid-area: 2 / 1 / 3 / 2; }
+        #rightBtn { grid-area: 2 / 3 / 3 / 4; }
+        #downBtn { grid-area: 3 / 2 / 4 / 3; }
+        /* Center button for potential action/pause */
+        #actionBtnMobile { grid-area: 2 / 2 / 3 / 3; font-size: 1.2rem; }
+
+
+        /* Notifications & Modals */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            z-index: 2000;
+            transform: translateX(120%);
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+            max-width: 300px;
+            font-size: 0.9rem;
+        }
+        .notification.show { transform: translateX(0); }
+        .notification.success { background: linear-gradient(135deg, var(--success-color), #00bb55); }
+        .notification.error { background: linear-gradient(135deg, var(--danger-color), #ee4050); }
+        .notification.info { background: linear-gradient(135deg, var(--primary-color), #00aabb); }
+        .notification.warning { background: linear-gradient(135deg, var(--warning-color), #ee9000); }
+
+        .modal {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(10, 10, 15, 0.85); /* Darker overlay */
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 3000;
+            opacity: 0; visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .modal.show { opacity: 1; visibility: visible; }
+        .modal-content {
+            background: linear-gradient(135deg, rgba(20, 20, 35, 0.95), rgba(15, 25, 50, 0.95));
+            border-radius: 20px;
+            padding: clamp(20px, 5vw, 35px); /* Responsive padding */
+            text-align: center;
+            max-width: 450px;
+            width: 90%;
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+            transform: scale(0.9) translateY(20px);
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            opacity: 0;
+        }
+        .modal.show .modal-content { transform: scale(1) translateY(0); opacity: 1; }
+        .modal h2 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            font-size: clamp(1.8rem, 4vw, 2.2rem);
+            text-shadow: 0 0 10px currentColor;
+        }
+        .modal p {
+            margin-bottom: 20px;
+            font-size: clamp(0.9rem, 2vw, 1rem);
+            line-height: 1.5;
+            opacity: 0.9;
+        }
+        .modal .controls { margin-top: 10px; } /* Reduced margin in modal controls */
+
+        /* Power-up Panel */
+        .powerup-panel {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin: 10px 0;
+            flex-wrap: wrap;
+        }
+        .powerup-card {
+            background: var(--glass-bg);
+            border: 2px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 10px;
+            min-width: 80px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .powerup-card:hover {
+            border-color: var(--accent-color);
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(0, 255, 136, 0.25);
+        }
+        .powerup-card.active, .powerup-card.available { /* `available` for visual cue */
+            border-color: var(--accent-color);
+            box-shadow: 0 0 15px rgba(0, 255, 136, 0.4);
+        }
+        .powerup-card.cooldown {
+            opacity: 0.5;
+            cursor: not-allowed;
+            border-color: var(--glass-border) !important; /* Ensure cooldown overrides hover */
+            box-shadow: none !important;
+        }
+        .powerup-icon {
+            font-size: clamp(1.5rem, 3vw, 1.8rem);
+            margin-bottom: 3px;
+        }
+        .powerup-name {
+            font-size: clamp(0.65rem, 1.2vw, 0.7rem);
+            font-weight: 600;
+        }
+        .powerup-cooldown-bar { /* Changed from class to be more specific */
+            position: absolute;
+            bottom: 0; left: 0;
+            height: 4px;
+            background: var(--danger-color);
+            width: 0%; /* Controlled by JS */
+            transition: width 0.1s linear;
+            border-bottom-left-radius: 8px;
+            border-bottom-right-radius: 8px;
+        }
+
+
+        /* Leaderboard */
+        .leaderboard {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 15px 0;
+            border: 1px solid var(--glass-border);
+            max-width: 350px;
+            width: 100%;
+            max-height: 250px; /* Max height with scroll */
+            overflow-y: auto;
+        }
+        .leaderboard-title {
+            text-align: center;
+            color: var(--primary-color);
+            font-size: clamp(1.2rem, 2.5vw, 1.4rem);
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+        .leaderboard-entry {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            font-size: clamp(0.8rem, 1.8vw, 0.9rem);
+        }
+        .leaderboard-entry:last-child { border-bottom: none; }
+        .leaderboard-rank { font-weight: 700; color: var(--accent-color); min-width: 25px; }
+        .leaderboard-name { flex-grow: 1; margin-left: 10px; opacity: 0.9;}
+        .leaderboard-score { font-weight: 700; color: var(--primary-color); }
+
+        /* Special Effects */
+        .screen-flash {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            z-index: 4000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.05s ease-out; /* Faster flash */
+        }
+        .screen-flash.active { opacity: 1; }
+
+        .combo-display {
+            position: fixed;
+            top: 30%; /* Higher position */
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 900;
+            color: var(--accent-color);
+            z-index: 4000;
+            text-shadow: var(--neon-glow-accent);
+            opacity: 0;
+            animation: comboShow 0.8s ease-out forwards; /* Forwards to hold last frame */
+            pointer-events: none;
+        }
+        @keyframes comboShow {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+            20% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+            80% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(1); }
+        }
+
+        /* Loading Screen */
+        .loading-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--dark-bg);
+            display: flex; /* Keep as flex for centering */
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 5000;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+        .loading-screen.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+        .loading-spinner {
+            width: 70px; height: 70px;
+            border: 4px solid rgba(0, 212, 255, 0.2);
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+        .loading-text {
+            font-size: 1.1rem;
+            color: var(--primary-color);
+            animation: pulseText 1.5s ease-in-out infinite alternate;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        @keyframes pulseText { /* Renamed to avoid conflict */
+            0% { opacity: 0.6; }
+            100% { opacity: 1; }
+        }
+
+        /* Responsive Design Adjustments */
+        @media (max-width: 768px) {
+            .stats-dashboard {
+                grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); /* Smaller cards on mobile */
+            }
+            .mobile-controls {
+                display: grid; /* Show mobile controls */
+            }
+            .control-panel .premium-btn:not(.mobile-specific) { /* Hide some desktop buttons if needed */
+                 /* display: none; */
+            }
+            .game-modes {
+                flex-direction: column; /* Stack mode cards */
+            }
+            .mode-card { width: 100%; max-width: 300px; margin-left: auto; margin-right: auto;}
+        }
+
+        @media (max-width: 480px) {
+            .premium-header { margin-bottom: 10px; }
+            .stats-dashboard { gap: 5px; margin: 10px 0; }
+            .stat-card { padding: 8px; border-radius: 10px; }
+            .premium-btn { padding: 10px 20px; }
+            .powerup-panel { gap: 5px; }
+            .powerup-card { min-width: 70px; padding: 8px; }
+            .leaderboard { padding: 15px; max-height: 200px;}
+            .modal-content { padding: 20px; }
+            .mobile-controls { width: 160px; height: 160px; }
+            .mobile-btn { font-size: 1.5rem; }
+        }
+
+
+        @media (max-width: 600px) {
+    .mobile-controls {
+        position: fixed;
+        bottom: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 2000;
+        background: rgba(0, 0, 0, 0.6);
+        padding: 10px;
+        border-radius: 10px;
+    }
+
+    .leaderboard, .powerup-panel {
+        margin-bottom: 90px; /* Push content above controls */
+    }
+}
+
+
+    </style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Initializing Platinum Matrix...</div>
+    </div>
+
+    <!-- Background Effects -->
+    <div class="background-effects-container">
+        <canvas class="neural-network" id="neuralNetworkCanvas"></canvas>
+        <canvas class="particle-system" id="particleSystemCanvas"></canvas>
+        <div class="floating-elements" id="floatingElementsContainer"></div>
+    </div>
+
+    <!-- Screen Flash Effect -->
+    <div class="screen-flash" id="screenFlash"></div>
+    <div id="comboDisplay" class="combo-display"></div>
+
+
+    <!-- Main Game Container -->
+    <div class="game-container" id="gameContainer">
+        <!-- Header -->
+        <div class="premium-header">
+            <h1 class="game-title">🐍 SNAKE PLATINUM</h1>
+        </div>
+
+        <!-- Statistics Dashboard -->
+        <div class="stats-dashboard">
+            <div class="stat-card">
+                <div class="stat-value" id="scoreDisplay">0</div>
+                <div class="stat-label">Score</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="highScoreDisplay">0</div>
+                <div class="stat-label">High Score</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="levelDisplay">1</div>
+                <div class="stat-label">Level</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="comboCounterDisplay">0</div>
+                <div class="stat-label">Combo</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="multiplierDisplay">1x</div>
+                <div class="stat-label">Multiplier</div>
+            </div>
+        </div>
+
+        <!-- Game Modes -->
+        <div class="game-modes" id="gameModesContainer">
+            <div class="mode-card active" data-mode="classic">
+                <div class="mode-title">🎮 Classic</div>
+                <div class="mode-description">Timeless snake adventure</div>
+            </div>
+            <div class="mode-card" data-mode="survival">
+                <div class="mode-title">💀 Survival</div>
+                <div class="mode-description">Dodge dynamic obstacles</div>
+            </div>
+            <div class="mode-card" data-mode="blitz">
+                <div class="mode-title">⚡ Blitz</div>
+                <div class="mode-description">Race against the clock</div>
+            </div>
+            <div class="mode-card" data-mode="zen">
+                <div class="mode-title">🧘 Zen</div>
+                <div class="mode-description">Relax, no walls, no pressure</div>
+            </div>
+           <!---- <div class="mode-card" data-mode="ai_challenge">
+                <div class="mode-title">🤖 AI Rival</div>
+                <div class="mode-description">Outsmart the AI snake</div>
+            </div>-->
+        </div>
+
+        <!-- Power-up Panel -->
+        <div class="powerup-panel" id="powerupPanel">
+            <div class="powerup-card" data-powerup="speedBoost">
+                <div class="powerup-icon">🚀</div>
+                <div class="powerup-name">Boost</div>
+                <div class="powerup-cooldown-bar"></div>
+            </div>
+            <div class="powerup-card" data-powerup="shield">
+                <div class="powerup-icon">🛡️</div>
+                <div class="powerup-name">Shield</div>
+                <div class="powerup-cooldown-bar"></div>
+            </div>
+            <div class="powerup-card" data-powerup="foodMagnet">
+                <div class="powerup-icon">🧲</div>
+                <div class="powerup-name">Magnet</div>
+                <div class="powerup-cooldown-bar"></div>
+            </div>
+            <div class="powerup-card" data-powerup="freezeTime">
+                <div class="powerup-icon">❄️</div>
+                <div class="powerup-name">Freeze</div>
+                <div class="powerup-cooldown-bar"></div>
+            </div>
+        </div>
+        
+        <!-- Game Board -->
+        <div class="game-board-container">
+            <div class="game-board">
+                <canvas id="gameCanvas" class="game-canvas"></canvas>
+            </div>
+        </div>
+
+        <!-- Control Panel -->
+        <div class="control-panel">
+            <button class="premium-btn btn-primary" id="startBtn">🚀 Launch Game</button>
+            <button class="premium-btn btn-secondary" id="pauseBtn">⏸️ Pause</button>
+            <button class="premium-btn btn-secondary" id="settingsBtn">⚙️ Settings</button>
+        </div>
+
+        <!-- Mobile Controls -->
+        <div class="mobile-controls" id="mobileControlsContainer">
+            <button class="mobile-btn" id="upBtn">⬆️</button>
+            <button class="mobile-btn" id="leftBtn">⬅️</button>
+            <button class="mobile-btn" id="actionBtnMobile">⚡</button> <!-- Example for power-up or pause -->
+            <button class="mobile-btn" id="rightBtn">➡️</button>
+            <button class="mobile-btn" id="downBtn">⬇️</button>
+        </div>
+
+        <!-- Leaderboard -->
+        <div class="leaderboard" id="leaderboardContainer">
+            <div class="leaderboard-title">🏆 Global High Scores 🏆</div>
+            <div id="leaderboardEntries">
+                <!-- Entries will be populated by JavaScript -->
+                <div class="leaderboard-entry">
+                    <span class="leaderboard-rank">1.</span>
+                    <span class="leaderboard-name">Loading...</span>
+                    <span class="leaderboard-score"></span>
+                </div>
+            </div>
+        </div>
+
+    </div> <!-- End Game Container -->
+
+    <!-- Notification Area -->
+    <div class="notification" id="notificationBanner"></div>
+
+    <!-- Modals -->
+    <div class="modal" id="gameOverModal">
+        <div class="modal-content">
+            <h2 id="gameOverTitle">GAME OVER</h2>
+            <p id="gameOverMessage">Your score: <span id="finalScoreDisplay">0</span></p>
+            <p>Mode: <span id="finalModeDisplay">Classic</span></p>
+            <div class="controls">
+                <button class="premium-btn btn-primary" id="playAgainBtn">🔄 Play Again</button>
+                <button class="premium-btn btn-secondary" id="mainMenuBtn">🏠 Main Menu</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="settingsModal">
+        <div class="modal-content">
+            <h2>⚙️ Game Settings</h2>
+            <div style="text-align: left; margin: 20px 0; display: flex; flex-direction: column; gap: 15px;">
+                <label style="display: flex; align-items: center; justify-content: space-between;">
+                    <span>🔊 Sound Effects:</span>
+                    <input type="checkbox" id="soundToggle" class="settings-toggle" checked>
+                </label>
+                <label style="display: flex; align-items: center; justify-content: space-between;">
+                   <span>🎵 Background Music:</span>
+                   <input type="checkbox" id="musicToggle" class="settings-toggle" checked>
+                </label>
+                <label style="display: flex; align-items: center; justify-content: space-between;">
+                    <span>✨ Particle Effects:</span>
+                    <input type="checkbox" id="particlesToggle" class="settings-toggle" checked>
+                </label>
+                 <label style="display: flex; align-items: center; justify-content: space-between;">
+                    <span>🕹️ Show Mobile D-Pad:</span>
+                    <input type="checkbox" id="dpadToggle" class="settings-toggle">
+                </label>
+                <label style="display: flex; flex-direction: column; gap: 5px;">
+                    <span>🔊 Master Volume:</span>
+                    <input type="range" id="volumeSlider" min="0" max="100" value="50" style="width:100%;">
+                </label>
+                 <label style="display: flex; flex-direction: column; gap: 5px;">
+                    <span>👤 Player Name:</span>
+                    <input type="text" id="playerNameInput" placeholder="Enter Your Name" style="padding: 8px; border-radius: 5px; border: 1px solid var(--glass-border); background: rgba(0,0,0,0.2); color: white;">
+                </label>
+            </div>
+            <div class="controls">
+                <button class="premium-btn btn-primary" id="saveSettingsBtn">💾 Save</button>
+                <button class="premium-btn btn-danger" id="resetDataBtn">🗑️ Reset Data</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal" id="pauseModal">
+        <div class="modal-content">
+            <h2>⏸️ GAME PAUSED</h2>
+            <p>Take a breather, champion!</p>
+            <div class="controls">
+                <button class="premium-btn btn-primary" id="resumeBtn">▶️ Resume</button>
+                <button class="premium-btn btn-secondary" id="quitToMenuBtn">🚪 Quit to Menu</button>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+    // --- Helper Functions ---
+    function $(selector) { return document.querySelector(selector); }
+    function $all(selector) { return document.querySelectorAll(selector); }
+
+    // --- Game Class ---
+    class SnakeMasterPlatinum {
+        constructor() {
+            // Core Game Elements
+            this.canvas = $('#gameCanvas');
+            this.ctx = this.canvas.getContext('2d');
+            
+            // DOM UI Elements
+            this.scoreDisplay = $('#scoreDisplay');
+            this.highScoreDisplay = $('#highScoreDisplay');
+            this.levelDisplay = $('#levelDisplay');
+            this.comboDisplay = $('#comboCounterDisplay');
+            this.multiplierDisplay = $('#multiplierDisplay');
+            this.finalScoreDisplay = $('#finalScoreDisplay');
+            this.finalModeDisplay = $('#finalModeDisplay');
+            this.loadingScreen = $('#loadingScreen');
+            this.gameContainer = $('#gameContainer');
+            this.notificationBanner = $('#notificationBanner');
+            this.comboTextElement = $('#comboDisplay'); // For the large combo text effect
+            this.screenFlashElement = $('#screenFlash');
+
+            // Buttons
+            this.startBtn = $('#startBtn');
+            this.pauseBtn = $('#pauseBtn');
+            this.settingsBtn = $('#settingsBtn');
+            this.playAgainBtn = $('#playAgainBtn');
+            this.mainMenuBtn = $('#mainMenuBtn');
+            this.resumeBtn = $('#resumeBtn');
+            this.quitToMenuBtn = $('#quitToMenuBtn');
+            this.saveSettingsBtn = $('#saveSettingsBtn');
+            this.resetDataBtn = $('#resetDataBtn');
+            
+            // Mobile Controls
+            this.mobileControlsContainer = $('#mobileControlsContainer');
+            this.upMobileBtn = $('#upBtn');
+            this.downMobileBtn = $('#downBtn');
+            this.leftMobileBtn = $('#leftBtn');
+            this.rightMobileBtn = $('#rightBtn');
+            this.actionMobileBtn = $('#actionBtnMobile'); // For power-ups on mobile
+
+            // Modals
+            this.gameOverModal = $('#gameOverModal');
+            this.settingsModal = $('#settingsModal');
+            this.pauseModal = $('#pauseModal');
+            
+            // Settings Inputs
+            this.soundToggle = $('#soundToggle');
+            this.musicToggle = $('#musicToggle');
+            this.particlesToggle = $('#particlesToggle');
+            this.dpadToggle = $('#dpadToggle');
+            this.volumeSlider = $('#volumeSlider');
+            this.playerNameInput = $('#playerNameInput');
+
+            // Game State
+            this.gridSize = 20;
+            this.tileCountX = 30; // Default, will be calculated
+            this.tileCountY = 20; // Default, will be calculated
+            this.snake = [];
+            this.food = {};
+            this.obstacles = []; // For survival mode
+            this.dx = 0; // Velocity x
+            this.dy = 0; // Velocity y
+            this.score = 0;
+            this.level = 1;
+            this.combo = 0;
+            this.multiplier = 1;
+            this.gameRunning = false;
+            this.gamePaused = false;
+            this.currentMode = 'classic'; // Default mode
+            this.gameSpeed = 150; // Initial speed (ms per update)
+            this.baseSpeed = 150;
+            this.lastRenderTime = 0;
+            this.blitzTimer = 0; // For Blitz mode
+            this.blitzInterval = null;
+            this.aiSnake = null; // For AI Challenge mode
+
+            this.blitzEndTime = null; // Time when Blitz should end
+            this.pauseTimestamp = null;       // Used to calculate how long it was paused
+            this.blitzTickInterval = null; // Timer for countdown updates
+
+
+            // Settings & Data
+            this.settings = {
+                sound: true,
+                music: true,
+                particles: true,
+                showDpad: false,
+                volume: 0.5,
+                playerName: 'Player',
+                highScores: {} // {mode: [{name, score}, ...]}
+            };
+            this.powerUps = {
+                speedBoost: { active: false, duration: 5000, cooldown: 20000, lastUsed: 0, available: true, timer: null, el: $('[data-powerup="speedBoost"]') },
+                shield: { active: false, duration: 10000, cooldown: 30000, lastUsed: 0, available: true, timer: null, el: $('[data-powerup="shield"]') },
+                foodMagnet: { active: false, duration: 7000, cooldown: 25000, lastUsed: 0, available: true, timer: null, el: $('[data-powerup="foodMagnet"]') },
+                freezeTime: { active: false, duration: 5000, cooldown: 35000, lastUsed: 0, available: true, timer: null, el: $('[data-powerup="freezeTime"]') }
+            };
+
+            // Audio
+            this.audioContext = null;
+            this.sounds = {}; // To store loaded sounds
+
+            // Background Effects
+            this.neuralCanvas = $('#neuralNetworkCanvas');
+            this.neuralCtx = this.neuralCanvas.getContext('2d');
+            this.particleCanvas = $('#particleSystemCanvas');
+            this.particleCtx = this.particleCanvas.getContext('2d');
+            this.floatingElementsContainer = $('#floatingElementsContainer');
+            this.neuralNodes = [];
+            this.bgParticles = [];
+            this.floatingElements = [];
+            
+            this.resizeCanvas(); // Initial resize
+            this.loadSettings();
+            this._setupEventListeners();
+            this.initBackgroundEffects();
+            this.showLoadingScreen(false); // Hide after setup
+             this.showMainMenu();
+        }
+
+        _setupEventListeners() {
+            window.addEventListener('resize', () => this.resizeCanvas());
+            document.addEventListener('keydown', (e) => this._handleKeyPress(e));
+
+            this.startBtn.addEventListener('click', () => this.startGame());
+            this.pauseBtn.addEventListener('click', () => this.togglePause());
+            this.settingsBtn.addEventListener('click', () => this.showModal(this.settingsModal));
+            
+            this.playAgainBtn.addEventListener('click', () => {
+                this.hideModal(this.gameOverModal);
+                this.startGame();
+            });
+            this.mainMenuBtn.addEventListener('click', () => {
+                this.hideModal(this.gameOverModal);
+                this.showMainMenu();
+            });
+            this.resumeBtn.addEventListener('click', () => {
+                this.hideModal(this.pauseModal);
+                this.togglePause();
+            });
+            this.quitToMenuBtn.addEventListener('click', () => {
+                this.hideModal(this.pauseModal);
+                this.gameRunning = false; // Ensure game stops
+                this.showMainMenu();
+            });
+
+            this.saveSettingsBtn.addEventListener('click', () => this.saveAndApplySettings());
+            this.resetDataBtn.addEventListener('click', () => this.confirmResetData());
+            
+            // Game Mode Selection
+            $all('.mode-card').forEach(card => {
+                card.addEventListener('click', (e) => {
+                    if (this.gameRunning) {
+                        this.showNotification("Cannot change mode during game.", "warning");
+                        return;
+                    }
+                    this.currentMode = card.dataset.mode;
+                    $all('.mode-card').forEach(c => c.classList.remove('active'));
+                    card.classList.add('active');
+                    this.showNotification(`Mode selected: ${card.querySelector('.mode-title').textContent}`, "info");
+                    this.updateHighScoreDisplay(); // Update HS for selected mode
+                });
+            });
+
+            // Power-up Activation
+            $all('.powerup-card').forEach(card => {
+                card.addEventListener('click', () => this.activatePowerUp(card.dataset.powerup));
+            });
+            
+            // Mobile Controls
+            this.upMobileBtn.addEventListener('click', () => this._changeDirection(0, -1));
+            this.downMobileBtn.addEventListener('click', () => this._changeDirection(0, 1));
+            this.leftMobileBtn.addEventListener('click', () => this._changeDirection(-1, 0));
+            this.rightMobileBtn.addEventListener('click', () => this._changeDirection(1, 0));
+            this.actionMobileBtn.addEventListener('click', () => { // Example: activate first available powerup or pause
+                if (this.gamePaused || !this.gameRunning) this.togglePause();
+                else {
+                    const firstAvailable = Object.keys(this.powerUps).find(p => this.powerUps[p].available && !this.powerUps[p].active);
+                    if (firstAvailable) this.activatePowerUp(firstAvailable);
+                }
+            });
+        }
+        
+        showMainMenu() {
+            this.gameContainer.style.display = 'flex'; // Or whatever its default display is
+            $('#gameModesContainer').style.display = 'flex';
+            $('.game-board-container').style.display = 'none';
+            $('#powerupPanel').style.display = 'none';
+            this.startBtn.textContent = "🚀 Launch Game";
+            this.pauseBtn.style.display = "none";
+            this.updateUI(); // Update scores etc.
+            this.resetGameVariables(); // Reset snake, etc.
+        }
+
+        resizeCanvas() {
+            const container = $('.game-board-container');
+            const aspectRatio = 1.5; // Width / Height (e.g., 30x20 grid)
+            let newWidth = container.offsetWidth;
+            let newHeight = newWidth / aspectRatio;
+
+            if (newHeight > container.offsetHeight && container.offsetHeight > 0) {
+                 newHeight = container.offsetHeight;
+                 newWidth = newHeight * aspectRatio;
+            }
+             if (newWidth > window.innerWidth * 0.9) {
+                newWidth = window.innerWidth * 0.9;
+                newHeight = newWidth / aspectRatio;
+            }
+            if (newHeight > window.innerHeight * 0.5) {
+                newHeight = window.innerHeight * 0.5;
+                newWidth = newHeight * aspectRatio;
+            }
+
+
+            this.canvas.width = Math.floor(newWidth / this.gridSize) * this.gridSize;
+            this.canvas.height = Math.floor(newHeight / this.gridSize) * this.gridSize;
+            
+            this.tileCountX = Math.floor(this.canvas.width / this.gridSize);
+            this.tileCountY = Math.floor(this.canvas.height / this.gridSize);
+
+            // Resize background canvases
+            this.neuralCanvas.width = window.innerWidth;
+            this.neuralCanvas.height = window.innerHeight;
+            this.particleCanvas.width = window.innerWidth;
+            this.particleCanvas.height = window.innerHeight;
+
+            if (this.gameRunning && !this.gamePaused) this.render(); // Re-render if game is active
+
+            this.refreshPowerupCooldownBars();
+
+
+
+        }
+
+
+        refreshPowerupCooldownBars() {
+                const now = Date.now();
+                Object.entries(this.powerUps).forEach(([key, pu]) => {
+                    if (!pu.available && !pu.active && pu.lastUsed) {
+                        const elapsed = now - pu.lastUsed;
+                        const remaining = Math.max(0, pu.cooldown - elapsed);
+                        const widthPercent = (remaining / pu.cooldown) * 100;
+                        const bar = pu.el?.querySelector('.powerup-cooldown-bar');
+                        if (bar) {
+                            bar.style.width = `${widthPercent}%`;
+                        }
+                    }
+                });
+            }
+
+        showLoadingScreen(show = true) {
+            if (show) {
+                this.loadingScreen.classList.remove('hidden');
+                this.gameContainer.classList.remove('loaded');
+            } else {
+                // Ensure body allows game container to be displayed
+                document.body.style.alignItems = 'flex-start'; // Or initial/unset
+                document.body.style.justifyContent = 'flex-start'; // Or initial/unset
+                
+                setTimeout(() => { // Ensure loader is visible for a moment
+                    this.loadingScreen.classList.add('hidden');
+                    this.gameContainer.classList.add('loaded');
+                }, 500);
+            }
+        }
+        
+        // --- Game Core Logic ---
+        initGame() {
+            this.score = 0;
+            this.level = 1;
+            this.combo = 0;
+            this.multiplier = 1;
+            this.baseSpeed = 150; // Reset base speed
+            this.gameSpeed = this.calculateGameSpeed();
+            this.obstacles = [];
+
+            this.snake = [{ x: Math.floor(this.tileCountX / 2), y: Math.floor(this.tileCountY / 2) }];
+            this.dx = 1; // Start moving right
+            this.dy = 0;
+            
+            this.generateFood();
+            if (this.currentMode === 'survival') this.generateObstacles(5);
+            if (this.currentMode === 'blitz') {
+                this.blitzTimer = 60; // 60 seconds
+                if(this.blitzInterval) clearInterval(this.blitzInterval); // Clear previous interval
+                this.blitzInterval = setInterval(() => {
+                    this.blitzTimer--;
+                    if (this.blitzTimer <= 0) {
+                        this.gameOver("Time's up!");
+                        clearInterval(this.blitzInterval);
+                    }
+                }, 1000);
+            } else {
+                 if(this.blitzInterval) clearInterval(this.blitzInterval);
+            }
+
+            // Reset power-ups
+            for (const key in this.powerUps) {
+                const pu = this.powerUps[key];
+                pu.active = false;
+                // pu.lastUsed = 0; // Cooldown persists between games unless fully reset
+                // pu.available = Date.now() - pu.lastUsed > pu.cooldown; // Recalc availability
+                if (pu.timer) clearTimeout(pu.timer);
+                this.updatePowerUpUI(key);
+            }
+
+            this.updateUI();
+        }
+        
+        resetGameVariables() {
+            this.snake = [];
+            this.food = {};
+            this.obstacles = [];
+            this.dx = 0;
+            this.dy = 0;
+            this.score = 0;
+            this.level = 1;
+            this.combo = 0;
+            this.multiplier = 1;
+            this.gameRunning = false;
+            this.gamePaused = false;
+            if (this.blitzInterval) clearInterval(this.blitzInterval);
+            this.blitzTimer = 0;
+
+            // Clear active power-up timers
+            for (const key in this.powerUps) {
+                if (this.powerUps[key].timer) clearTimeout(this.powerUps[key].timer);
+                this.powerUps[key].active = false;
+                 // Keep cooldowns, but ensure UI reflects this if a game ended prematurely
+                this.updatePowerUpUI(key);
+            }
+             this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height); // Clear canvas
+        }
+
+
+        startGame() {
+            if (this.gameRunning && !this.gamePaused) return;
+            if (this.gamePaused) { // If paused, resume
+                this.togglePause();
+                return;
+            }
+            
+            $('#gameModesContainer').style.display = 'none';
+            $('.game-board-container').style.display = 'block';
+            $('#powerupPanel').style.display = 'flex';
+            this.startBtn.textContent = "🚀 Game in Progress...";
+            this.pauseBtn.style.display = "inline-block";
+
+            this.gameRunning = true;
+            this.gamePaused = false;
+            this.initGame();
+            this.showNotification(`🚀 ${this.currentMode.replace('_',' ')} mode started!`, "success");
+            this._playSound('start');
+            this.resizeCanvas(); // Ensure canvas is correct size before loop
+            requestAnimationFrame((time) => this.gameLoop(time));
+        }
+
+        gameLoop(currentTime) {
+            if (!this.gameRunning || this.gamePaused) return;
+
+            const elapsed = currentTime - this.lastRenderTime;
+            if (elapsed > this.gameSpeed) {
+                this.lastRenderTime = currentTime - (elapsed % this.gameSpeed);
+                this.update();
+                this.render();
+            }
+            requestAnimationFrame((time) => this.gameLoop(time));
+        }
+
+        update() {
+            if (this.powerUps.freezeTime.active) return; // Skip update if time is frozen
+
+            let newHeadX = this.snake[0].x + this.dx;
+            let newHeadY = this.snake[0].y + this.dy;
+
+            // Magnet PowerUp: Adjust direction towards food
+            if (this.powerUps.foodMagnet.active) {
+                const head = this.snake[0];
+                if (Math.abs(this.food.x - head.x) > Math.abs(this.food.y - head.y)) {
+                    if (this.food.x < head.x && this.dx !== 1) { this.dx = -1; this.dy = 0; }
+                    else if (this.food.x > head.x && this.dx !== -1) { this.dx = 1; this.dy = 0; }
+                } else {
+                    if (this.food.y < head.y && this.dy !== 1) { this.dy = -1; this.dx = 0; }
+                    else if (this.food.y > head.y && this.dy !== -1) { this.dy = 1; this.dx = 0; }
+                }
+                newHeadX = this.snake[0].x + this.dx; // Recalculate after magnet
+                newHeadY = this.snake[0].y + this.dy;
+            }
+            
+            const head = { x: newHeadX, y: newHeadY };
+
+            // Wall collision
+            if (this.currentMode !== 'zen') { // Zen mode has no walls
+                if (head.x < 0 || head.x >= this.tileCountX || head.y < 0 || head.y >= this.tileCountY) {
+                    if (this.powerUps.shield.active) {
+                        this.deactivatePowerUp('shield');
+                        this.showNotification("🛡️ Shield absorbed wall hit!", "info");
+                        // Bounce off logic (simple reverse)
+                        if (head.x < 0 || head.x >= this.tileCountX) this.dx *= -1;
+                        if (head.y < 0 || head.y >= this.tileCountY) this.dy *= -1;
+                        head.x = this.snake[0].x + this.dx; // Recalculate head
+                        head.y = this.snake[0].y + this.dy;
+                    } else {
+                        this.gameOver('Crashed into a wall!');
+                        return;
+                    }
+                }
+            } else { // Zen mode - toroidal world
+                if (head.x < 0) head.x = this.tileCountX - 1;
+                if (head.x >= this.tileCountX) head.x = 0;
+                if (head.y < 0) head.y = this.tileCountY - 1;
+                if (head.y >= this.tileCountY) head.y = 0;
+            }
+
+            // Self collision
+            for (let i = 1; i < this.snake.length; i++) {
+                if (head.x === this.snake[i].x && head.y === this.snake[i].y) {
+                     if (this.powerUps.shield.active) {
+                        this.deactivatePowerUp('shield');
+                        this.showNotification("🛡️ Shield protected from self-collision!", "info");
+                        // To prevent immediate re-collision, skip adding this segment for one frame - effectively shorten snake slightly
+                        // This is a simple fix; more complex scenarios might need better handling
+                        this.snake.pop();
+                    } else {
+                        this.gameOver('Bit your own tail!');
+                        return;
+                    }
+                }
+            }
+            
+            // Obstacle collision (Survival mode)
+            if (this.currentMode === 'survival') {
+                for (const obs of this.obstacles) {
+                    if (head.x === obs.x && head.y === obs.y) {
+                        if (this.powerUps.shield.active) {
+                            this.deactivatePowerUp('shield');
+                            this.showNotification("🛡️ Shield destroyed an obstacle!", "info");
+                            this.obstacles = this.obstacles.filter(o => o !== obs); // Remove hit obstacle
+                        } else {
+                            this.gameOver('Hit an obstacle!');
+                            return;
+                        }
+                    }
+                }
+            }
+
+            this.snake.unshift(head);
+
+            if (head.x === this.food.x && head.y === this.food.y) {
+                this.eatFood();
+            } else {
+                this.snake.pop();
+            }
+            this.updateUI();
+        }
+
+        eatFood() {
+            this.score += (10 * this.multiplier);
+            this.combo++;
+            if (this.combo > 1) {
+                 this.showComboEffect(this.combo);
+            }
+            if (this.combo % 5 === 0 && this.combo > 0) { // Increase multiplier every 5 combos
+                this.multiplier = Math.min(5, this.multiplier + 1); // Max multiplier 5x
+                this.showNotification(`Multiplier x${this.multiplier}!`, "accent");
+            }
+            
+            this.generateFood();
+            if (this.settings.particles) this.createEatParticles(this.snake[0].x * this.gridSize, this.snake[0].y * this.gridSize);
+            this._playSound('eat');
+            
+            // Level up
+            if (this.score >= this.level * 100 * (this.currentMode === 'blitz' ? 0.5 : 1) ) { // Blitz levels faster
+                this.level++;
+                this.baseSpeed = Math.max(50, this.baseSpeed - 5); // Slightly increase base speed
+                this.gameSpeed = this.calculateGameSpeed();
+                this.showNotification(`🌟 Level ${this.level}! Speed Increased!`, "success");
+                this._playSound('levelup');
+                 if (this.currentMode === 'survival') this.generateObstacles(1); // Add more obstacles
+            }
+        }
+
+        generateFood() {
+            do {
+                this.food = {
+                    x: Math.floor(Math.random() * this.tileCountX),
+                    y: Math.floor(Math.random() * this.tileCountY)
+                };
+            } while (
+                this.snake.some(seg => seg.x === this.food.x && seg.y === this.food.y) ||
+                (this.currentMode === 'survival' && this.obstacles.some(obs => obs.x === this.food.x && obs.y === this.food.y))
+            );
+        }
+        
+        generateObstacles(count) {
+            for (let i = 0; i < count; i++) {
+                let obsPos;
+                do {
+                    obsPos = {
+                        x: Math.floor(Math.random() * this.tileCountX),
+                        y: Math.floor(Math.random() * this.tileCountY)
+                    };
+                } while (
+                    this.snake.some(seg => seg.x === obsPos.x && seg.y === obsPos.y) ||
+                    (this.food.x === obsPos.x && this.food.y === obsPos.y) ||
+                    this.obstacles.some(o => o.x === obsPos.x && o.y === obsPos.y)
+                );
+                this.obstacles.push(obsPos);
+            }
+        }
+
+        render() {
+            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+            // Grid (subtle)
+            this.ctx.strokeStyle = "rgba(255, 255, 255, 0.05)";
+            for (let x = 0; x < this.tileCountX; x++) {
+                for (let y = 0; y < this.tileCountY; y++) {
+                    this.ctx.strokeRect(x * this.gridSize, y * this.gridSize, this.gridSize, this.gridSize);
+                }
+            }
+
+            // Food
+            this.ctx.fillStyle = "hsl(" + (this.score % 360) + ", 100%, 60%)"; // Dynamic food color
+            this.ctx.beginPath();
+            this.ctx.arc(this.food.x * this.gridSize + this.gridSize / 2, 
+                         this.food.y * this.gridSize + this.gridSize / 2, 
+                         this.gridSize / 2.2, 0, 2 * Math.PI);
+            this.ctx.fill();
+            this.ctx.fillStyle = "rgba(255,255,255,0.3)"; // Shine
+            this.ctx.beginPath();
+            this.ctx.arc(this.food.x * this.gridSize + this.gridSize / 2.8, 
+                         this.food.y * this.gridSize + this.gridSize / 2.8, 
+                         this.gridSize / 5, 0, 2 * Math.PI);
+            this.ctx.fill();
+
+
+            // Snake
+            this.snake.forEach((segment, index) => {
+                const segmentHue = (120 + index * 5) % 360; // Greenish, shifts along body
+                this.ctx.fillStyle = `hsl(${segmentHue}, 70%, 50%)`;
+                 if (this.powerUps.shield.active && index === 0) { // Shield visual on head
+                    this.ctx.fillStyle = 'rgba(0, 212, 255, 0.7)'; // Shield color
+                }
+                this.ctx.fillRect(segment.x * this.gridSize + 1, segment.y * this.gridSize + 1, this.gridSize - 2, this.gridSize - 2);
+                
+                // Eyes on head
+                if (index === 0) {
+                    this.ctx.fillStyle = 'white';
+                    const eyeSize = this.gridSize / 5;
+                    let eye1X, eye1Y, eye2X, eye2Y;
+                    if (this.dx === 1) { // Right
+                        eye1X = segment.x * this.gridSize + this.gridSize * 0.7 - eyeSize/2; eye1Y = segment.y * this.gridSize + this.gridSize * 0.3 - eyeSize/2;
+                        eye2X = segment.x * this.gridSize + this.gridSize * 0.7 - eyeSize/2; eye2Y = segment.y * this.gridSize + this.gridSize * 0.7 - eyeSize/2;
+                    } else if (this.dx === -1) { // Left
+                        eye1X = segment.x * this.gridSize + this.gridSize * 0.3 - eyeSize/2; eye1Y = segment.y * this.gridSize + this.gridSize * 0.3 - eyeSize/2;
+                        eye2X = segment.x * this.gridSize + this.gridSize * 0.3 - eyeSize/2; eye2Y = segment.y * this.gridSize + this.gridSize * 0.7 - eyeSize/2;
+                    } else if (this.dy === 1) { // Down
+                        eye1X = segment.x * this.gridSize + this.gridSize * 0.3 - eyeSize/2; eye1Y = segment.y * this.gridSize + this.gridSize * 0.7 - eyeSize/2;
+                        eye2X = segment.x * this.gridSize + this.gridSize * 0.7 - eyeSize/2; eye2Y = segment.y * this.gridSize + this.gridSize * 0.7 - eyeSize/2;
+                    } else { // Up (dy === -1 or initial state)
+                        eye1X = segment.x * this.gridSize + this.gridSize * 0.3 - eyeSize/2; eye1Y = segment.y * this.gridSize + this.gridSize * 0.3 - eyeSize/2;
+                        eye2X = segment.x * this.gridSize + this.gridSize * 0.7 - eyeSize/2; eye2Y = segment.y * this.gridSize + this.gridSize * 0.3 - eyeSize/2;
+                    }
+                    this.ctx.beginPath();
+                    this.ctx.arc(eye1X + eyeSize/2, eye1Y + eyeSize/2, eyeSize, 0, 2 * Math.PI);
+                    this.ctx.arc(eye2X + eyeSize/2, eye2Y + eyeSize/2, eyeSize, 0, 2 * Math.PI);
+                    this.ctx.fill();
+
+                    this.ctx.fillStyle = 'black';
+                     this.ctx.beginPath();
+                    this.ctx.arc(eye1X + eyeSize/2, eye1Y + eyeSize/2, eyeSize/2, 0, 2 * Math.PI);
+                    this.ctx.arc(eye2X + eyeSize/2, eye2Y + eyeSize/2, eyeSize/2, 0, 2 * Math.PI);
+                    this.ctx.fill();
+                }
+            });
+            
+            // Obstacles (Survival mode)
+            if (this.currentMode === 'survival') {
+                this.ctx.fillStyle = 'rgba(100, 100, 120, 0.8)'; // Dark grey obstacles
+                this.obstacles.forEach(obs => {
+                    this.ctx.fillRect(obs.x * this.gridSize, obs.y * this.gridSize, this.gridSize, this.gridSize);
+                    this.ctx.strokeStyle = 'rgba(50,50,60,1)';
+                    this.ctx.strokeRect(obs.x * this.gridSize, obs.y * this.gridSize, this.gridSize, this.gridSize);
+                });
+            }
+
+            // Blitz Timer
+            if (this.currentMode === 'blitz' && this.blitzTimer > 0) {
+                this.ctx.fillStyle = this.blitzTimer <= 10 ? 'var(--danger-color)' : 'var(--accent-color)';
+                this.ctx.font = `bold ${this.gridSize*1.2}px Orbitron`;
+                this.ctx.textAlign = 'right';
+                this.ctx.fillText(`Time: ${this.blitzTimer}`, this.canvas.width - this.gridSize, this.gridSize * 1.5);
+            }
+        }
+        
+        // --- Game State & UI ---
+        updateUI() {
+            this.scoreDisplay.textContent = this.score;
+            this.levelDisplay.textContent = this.level;
+            this.comboDisplay.textContent = this.combo;
+            this.multiplierDisplay.textContent = `${this.multiplier}x`;
+            this.updateHighScoreDisplay();
+        }
+        
+        updateHighScoreDisplay() {
+            const modeHighScore = (this.settings.highScores[this.currentMode] && this.settings.highScores[this.currentMode][0]) 
+                                  ? this.settings.highScores[this.currentMode][0].score 
+                                  : 0;
+            this.highScoreDisplay.textContent = modeHighScore;
+        }
+
+        gameOver(reason = "Game Over") {
+            this.gameRunning = false;
+            this._playSound('gameover');
+            this.showNotification(`💀 ${reason}`, "error", 5000);
+            this.checkAndSaveHighScore();
+            this.updateLeaderboardUI(); // Refresh leaderboard with new score if any
+            
+            $('#gameOverTitle').textContent = reason.includes("Time's up") ? "⏰ TIME'S UP!" : "💀 GAME OVER";
+            this.finalScoreDisplay.textContent = this.score;
+            this.finalModeDisplay.textContent = this.currentMode.replace('_',' ');
+            this.showModal(this.gameOverModal);
+            
+            this.startBtn.textContent = "🚀 Launch Game"; // Reset start button text
+            this.pauseBtn.style.display = "none";
+            if (this.blitzInterval) clearInterval(this.blitzInterval);
+        }
+
+        togglePause() {
+            if (!this.gameRunning) return;
+            this.gamePaused = !this.gamePaused;
+            if (this.gamePaused) {
+                this._playSound('pause');
+                this.showModal(this.pauseModal)
+                this.pauseTimestamp = Date.now();
+                if (this.blitzInterval) clearInterval(this.blitzInterval); // Pause blitz timer
+            } else {
+                this._playSound('resume');
+                this.hideModal(this.pauseModal)
+                this.lastRenderTime = performance.now(); // Avoid jump after unpausing
+                 // Resume blitz timer if in blitz mode
+                if (this.currentMode === 'blitz' && this.blitzTimer > 0) {
+                    if(this.blitzInterval) clearInterval(this.blitzInterval);
+                    this.blitzInterval = setInterval(() => {
+                        this.blitzTimer--;
+                        if (this.blitzTimer <= 0) {
+                            this.gameOver("Time's up!");
+                            clearInterval(this.blitzInterval);
+                        }
+                        this.render(); // Re-render to update timer display
+                    }, 1000);
+                }
+                requestAnimationFrame((time) => this.gameLoop(time));
+            }
+
+
+        }
+        
+        showNotification(message, type = 'info', duration = 3000) {
+            this.notificationBanner.textContent = message;
+            this.notificationBanner.className = `notification ${type} show`;
+            setTimeout(() => {
+                this.notificationBanner.classList.remove('show');
+            }, duration);
+        }
+        
+        showModal(modalElement) {
+            modalElement.classList.add('show');
+        }
+
+        hideModal(modalElement) {
+            modalElement.classList.remove('show');
+        }
+        
+        showComboEffect(comboCount) {
+            if (!this.settings.particles) return; // Respect particle setting
+            this.comboTextElement.textContent = `COMBO x${comboCount}!`;
+            this.comboTextElement.style.animation = 'none'; // Reset animation
+            this.comboTextElement.offsetHeight; // Trigger reflow
+            this.comboTextElement.style.animation = 'comboShow 0.8s ease-out forwards';
+
+            this.screenFlashElement.classList.add('active');
+            setTimeout(() => this.screenFlashElement.classList.remove('active'), 100);
+        }
+
+        // --- Controls ---
+        _handleKeyPress(e) {
+            if (!this.gameRunning || this.gamePaused && e.key !== 'Escape' && e.key !== 'p' && e.key !== 'P') return;
+
+            switch (e.key.toLowerCase()) {
+                case 'arrowup': case 'w': this._changeDirection(0, -1); e.preventDefault(); break;
+                case 'arrowdown': case 's': this._changeDirection(0, 1); e.preventDefault(); break;
+                case 'arrowleft': case 'a': this._changeDirection(-1, 0); e.preventDefault(); break;
+                case 'arrowright': case 'd': this._changeDirection(1, 0); e.preventDefault(); break;
+                case ' ': // Space for first available power-up
+                    const firstAvailable = Object.keys(this.powerUps).find(p => this.powerUps[p].available && !this.powerUps[p].active);
+                    if (firstAvailable) this.activatePowerUp(firstAvailable);
+                    e.preventDefault(); 
+                    break;
+                case 'p': this.togglePause(); e.preventDefault(); break;
+                case 'escape': this.togglePause(); e.preventDefault(); break;
+                // Number keys for power-ups (1-4)
+                case '1': this.activatePowerUp(Object.keys(this.powerUps)[0]); break;
+                case '2': this.activatePowerUp(Object.keys(this.powerUps)[1]); break;
+                case '3': this.activatePowerUp(Object.keys(this.powerUps)[2]); break;
+                case '4': this.activatePowerUp(Object.keys(this.powerUps)[3]); break;
+            }
+        }
+
+        _changeDirection(newDx, newDy) {
+            // Prevent 180-degree turns
+            const goingVertical = this.dy !== 0;
+            const goingHorizontal = this.dx !== 0;
+
+            if (newDx !== 0 && goingHorizontal && newDx === -this.dx) return;
+            if (newDy !== 0 && goingVertical && newDy === -this.dy) return;
+            
+            // If snake has length 1, allow any direction
+            if (this.snake.length === 1) {
+                 this.dx = newDx;
+                 this.dy = newDy;
+                 return;
+            }
+
+            // Standard direction change, disallowing direct reversal
+            if (newDx !==0 && this.dx === 0) { // Was moving vertically, now horizontally
+                 this.dx = newDx; this.dy = 0;
+            } else if (newDy !== 0 && this.dy === 0) { // Was moving horizontally, now vertically
+                 this.dx = 0; this.dy = newDy;
+            }
+        }
+        
+        // --- Power-ups ---
+        calculateGameSpeed() {
+            let speed = this.baseSpeed;
+            if (this.powerUps.speedBoost.active) speed *= 0.5; // Double speed
+            if (this.powerUps.freezeTime.active) speed *= 1000; // Effectively stops (render one frame a very long time)
+            return speed;
+        }
+
+        activatePowerUp(type) {
+            if (!this.gameRunning || this.gamePaused) return;
+            const pu = this.powerUps[type];
+            if (!pu || pu.active || !pu.available) {
+                if(pu && !pu.available) this.showNotification(`${type.replace(/([A-Z])/g, ' $1')} on cooldown!`, "warning");
+                return;
+            }
+
+            pu.active = true;
+            pu.available = false; // Start cooldown timer after duration ends
+            pu.lastUsed = Date.now();
+            this._playSound('powerup');
+            this.showNotification(`${type.replace(/([A-Z])/g, ' $1')} Activated!`, "accent");
+
+            if (type === "speedBoost") this.gameSpeed = this.calculateGameSpeed();
+            
+            this.updatePowerUpUI(type);
+
+            pu.timer = setTimeout(() => {
+                this.deactivatePowerUp(type);
+            }, pu.duration);
+        }
+
+        deactivatePowerUp(type) {
+            const pu = this.powerUps[type];
+            if (!pu || !pu.active) return;
+
+            pu.active = false;
+            this.showNotification(`${type.replace(/([A-Z])/g, ' $1')} Wore Off.`, "info");
+            if (type === "speedBoost") this.gameSpeed = this.calculateGameSpeed(); // Recalculate speed
+            
+            this.updatePowerUpUI(type); // Update to show cooldown started
+
+            // Start cooldown visual
+            let cooldownProgress = 0;
+            const intervalTime = 100; // Update progress bar every 100ms
+            const totalIntervals = pu.cooldown / intervalTime;
+            
+            const cooldownInterval = setInterval(() => {
+                cooldownProgress++;
+                const widthPercent = (cooldownProgress / totalIntervals) * 100;
+                if (pu.el) pu.el.querySelector('.powerup-cooldown-bar').style.width = `${100 - widthPercent}%`;
+
+                if (cooldownProgress >= totalIntervals) {
+                    clearInterval(cooldownInterval);
+                    pu.available = true;
+                    if (pu.el) pu.el.querySelector('.powerup-cooldown-bar').style.width = '0%';
+                    this.updatePowerUpUI(type); // Update to show available again
+                    this.showNotification(`${type.replace(/([A-Z])/g, ' $1')} Recharged!`, "success");
+                }
+            }, intervalTime);
+        }
+        
+        updatePowerUpUI(type) {
+            const pu = this.powerUps[type];
+            if (!pu || !pu.el) return;
+
+            pu.el.classList.remove('active', 'available', 'cooldown');
+            const bar = pu.el.querySelector('.powerup-cooldown-bar');
+
+            if (pu.active) {
+                pu.el.classList.add('active');
+                 bar.style.background = 'var(--accent-color)'; // Active color
+                 bar.style.width = '100%'; // Full bar while active
+            } else if (!pu.available) { // On cooldown
+                pu.el.classList.add('cooldown');
+                bar.style.background = 'var(--danger-color)'; // Cooldown color
+                // Width is handled by the cooldown interval
+            } else { // Available
+                pu.el.classList.add('available');
+                bar.style.width = '0%';
+            }
+        }
+
+        // --- Settings & Data Persistence ---
+        loadSettings() {
+            const saved = localStorage.getItem('snakeMasterPlatinumSettings');
+            if (saved) {
+                this.settings = { ...this.settings, ...JSON.parse(saved) };
+            }
+            this.applySettings();
+            this.updateLeaderboardUI(); // Load leaderboard from settings
+        }
+
+        saveAndApplySettings() {
+            this.settings.sound = this.soundToggle.checked;
+            this.settings.music = this.musicToggle.checked;
+            this.settings.particles = this.particlesToggle.checked;
+            this.settings.showDpad = this.dpadToggle.checked;
+            this.settings.volume = parseInt(this.volumeSlider.value) / 100;
+            this.settings.playerName = this.playerNameInput.value.trim() || "Player";
+
+            localStorage.setItem('snakeMasterPlatinumSettings', JSON.stringify(this.settings));
+            this.applySettings();
+            this.showNotification("⚙️ Settings Saved!", "success");
+            this.hideModal(this.settingsModal);
+        }
+
+        applySettings() {
+            this.soundToggle.checked = this.settings.sound;
+            this.musicToggle.checked = this.settings.music;
+            this.particlesToggle.checked = this.settings.particles;
+            this.dpadToggle.checked = this.settings.showDpad;
+            this.volumeSlider.value = this.settings.volume * 100;
+            this.playerNameInput.value = this.settings.playerName;
+
+            if (this.settings.showDpad) {
+                this.mobileControlsContainer.style.display = 'grid';
+            } else {
+                this.mobileControlsContainer.style.display = 'none';
+            }
+            
+            // Initialize AudioContext on first user interaction with sound settings
+            if (!this.audioContext && (this.settings.sound || this.settings.music)) {
+                 this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            this.updateHighScoreDisplay(); // Update for current mode
+        }
+        
+        confirmResetData() {
+            if (confirm("WARNING: This will reset all your settings and high scores. Are you absolutely sure?")) {
+                localStorage.removeItem('snakeMasterPlatinumSettings');
+                // Reset to default settings
+                this.settings = {
+                    sound: true, music: true, particles: true, showDpad: false, volume: 0.5, playerName: 'Player', highScores: {}
+                };
+                this.applySettings(); // Apply defaults to UI
+                this.updateLeaderboardUI(); // Clear leaderboard display
+                this.showNotification("🗑️ All Game Data Reset!", "danger");
+            }
+        }
+        
+        checkAndSaveHighScore() {
+            const modeScores = this.settings.highScores[this.currentMode] || [];
+            const newEntry = { name: this.settings.playerName, score: this.score };
+            
+            modeScores.push(newEntry);
+            modeScores.sort((a, b) => b.score - a.score); // Sort descending
+            this.settings.highScores[this.currentMode] = modeScores.slice(0, 10); // Keep top 10
+
+            localStorage.setItem('snakeMasterPlatinumSettings', JSON.stringify(this.settings));
+        }
+
+        updateLeaderboardUI() {
+            const container = $('#leaderboardEntries');
+            container.innerHTML = ''; // Clear old entries
+            const modeScores = this.settings.highScores[this.currentMode] || [];
+
+            if (modeScores.length === 0) {
+                container.innerHTML = '<div class="leaderboard-entry"><span class="leaderboard-name" style="text-align:center; width:100%;">No scores yet for this mode!</span></div>';
+                return;
+            }
+
+            modeScores.forEach((entry, index) => {
+                const div = document.createElement('div');
+                div.className = 'leaderboard-entry';
+                div.innerHTML = `
+                    <span class="leaderboard-rank">${index + 1}.</span>
+                    <span class="leaderboard-name">${entry.name}</span>
+                    <span class="leaderboard-score">${entry.score}</span>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+
+        // --- Audio ---
+        _initAudio() {
+            if (!this.audioContext) {
+                this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            // Basic sounds (can be expanded with Tone.js or actual files later)
+            // For now, simple oscillators
+        }
+
+        _playSound(type) {
+            if (!this.settings.sound || !this.audioContext) return;
+
+            const oscillator = this.audioContext.createOscillator();
+            const gainNode = this.audioContext.createGain();
+            oscillator.connect(gainNode);
+            gainNode.connect(this.audioContext.destination);
+            gainNode.gain.setValueAtTime(this.settings.volume * 0.5, this.audioContext.currentTime); // Apply master volume, quieter for effects
+
+            switch (type) {
+                case 'eat':
+                    oscillator.type = 'square';
+                    oscillator.frequency.setValueAtTime(600, this.audioContext.currentTime);
+                    oscillator.frequency.exponentialRampToValueAtTime(900, this.audioContext.currentTime + 0.05);
+                    gainNode.gain.exponentialRampToValueAtTime(0.0001, this.audioContext.currentTime + 0.1);
+                    oscillator.start();
+                    oscillator.stop(this.audioContext.currentTime + 0.1);
+                    break;
+                case 'gameover':
+                    oscillator.type = 'sawtooth';
+                    oscillator.frequency.setValueAtTime(200, this.audioContext.currentTime);
+                    oscillator.frequency.exponentialRampToValueAtTime(50, this.audioContext.currentTime + 0.4);
+                     gainNode.gain.exponentialRampToValueAtTime(0.0001, this.audioContext.currentTime + 0.5);
+                    oscillator.start();
+                    oscillator.stop(this.audioContext.currentTime + 0.5);
+                    break;
+                case 'levelup':
+                case 'powerup':
+                    oscillator.type = 'triangle';
+                    let freq = type === 'levelup' ? 440 : 523; // A4 for levelup, C5 for powerup
+                    oscillator.frequency.setValueAtTime(freq, this.audioContext.currentTime);
+                    oscillator.frequency.setValueAtTime(freq * 1.5, this.audioContext.currentTime + 0.05);
+                    oscillator.frequency.setValueAtTime(freq * 2, this.audioContext.currentTime + 0.1);
+                    gainNode.gain.exponentialRampToValueAtTime(0.0001, this.audioContext.currentTime + 0.2);
+                    oscillator.start();
+                    oscillator.stop(this.audioContext.currentTime + 0.2);
+                    break;
+                case 'start':
+                case 'resume':
+                    oscillator.type = 'sine';
+                    oscillator.frequency.setValueAtTime(300, this.audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.0001, this.audioContext.currentTime + 0.15);
+                    oscillator.start();
+                    oscillator.stop(this.audioContext.currentTime + 0.15);
+                    break;
+                case 'pause':
+                     oscillator.type = 'sine';
+                    oscillator.frequency.setValueAtTime(200, this.audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.0001, this.audioContext.currentTime + 0.15);
+                    oscillator.start();
+                    oscillator.stop(this.audioContext.currentTime + 0.15);
+                    break;
+            }
+        }
+        
+        // --- Particle Effects ---
+        createEatParticles(x, y) {
+            if (!this.settings.particles) return;
+            for (let i = 0; i < 10; i++) {
+                this.bgParticles.push({
+                    x: x + this.gridSize / 2,
+                    y: y + this.gridSize / 2,
+                    size: Math.random() * 3 + 1,
+                    speedX: (Math.random() - 0.5) * 3,
+                    speedY: (Math.random() - 0.5) * 3,
+                    color: `hsl(${Math.random() * 60 + 20}, 100%, 70%)`, // yellow/orange
+                    life: 30
+                });
+            }
+        }
+        
+        // --- Background Effects ---
+        initBackgroundEffects() {
+            // Floating elements
+            for (let i = 0; i < 20; i++) {
+                const el = document.createElement('div');
+                el.className = 'floating-element';
+                el.style.left = `${Math.random() * 100}%`;
+                el.style.animationDelay = `${Math.random() * 15}s`;
+                el.style.width = `${Math.random() * 3 + 2}px`;
+                el.style.height = el.style.width;
+                this.floatingElementsContainer.appendChild(el);
+            }
+            // Neural network nodes (simplified)
+            for (let i = 0; i < 30; i++) {
+                this.neuralNodes.push({
+                    x: Math.random() * this.neuralCanvas.width,
+                    y: Math.random() * this.neuralCanvas.height,
+                    vx: (Math.random() - 0.5) * 0.5,
+                    vy: (Math.random() - 0.5) * 0.5,
+                    radius: Math.random() * 2 + 1
+                });
+            }
+            // General background particles
+            for (let i = 0; i < 100; i++) {
+                 this.bgParticles.push({
+                    x: Math.random() * this.particleCanvas.width,
+                    y: Math.random() * this.particleCanvas.height,
+                    size: Math.random() * 2 + 0.5,
+                    speedX: (Math.random() - 0.5) * 0.3,
+                    speedY: (Math.random() - 0.5) * 0.3,
+                    color: `rgba(0, 212, 255, ${Math.random() * 0.3 + 0.1})`,
+                    life: Infinity // Persistent
+                });
+            }
+            this.animateBackground();
+        }
+
+        animateBackground() {
+            // Neural Network
+            this.neuralCtx.clearRect(0, 0, this.neuralCanvas.width, this.neuralCanvas.height);
+            this.neuralNodes.forEach(node => {
+                node.x += node.vx;
+                node.y += node.vy;
+                if (node.x < 0 || node.x > this.neuralCanvas.width) node.vx *= -1;
+                if (node.y < 0 || node.y > this.neuralCanvas.height) node.vy *= -1;
+
+                this.neuralCtx.beginPath();
+                this.neuralCtx.arc(node.x, node.y, node.radius, 0, Math.PI * 2);
+                this.neuralCtx.fillStyle = 'rgba(0, 212, 255, 0.3)';
+                this.neuralCtx.fill();
+
+                // Connect nearby nodes
+                this.neuralNodes.forEach(otherNode => {
+                    const dist = Math.hypot(node.x - otherNode.x, node.y - otherNode.y);
+                    if (dist < 100) {
+                        this.neuralCtx.beginPath();
+                        this.neuralCtx.moveTo(node.x, node.y);
+                        this.neuralCtx.lineTo(otherNode.x, otherNode.y);
+                        this.neuralCtx.strokeStyle = `rgba(0, 212, 255, ${1 - dist/100 * 0.7})`;
+                        this.neuralCtx.lineWidth = 0.5;
+                        this.neuralCtx.stroke();
+                    }
+                });
+            });
+
+            // Particle System
+            this.particleCtx.clearRect(0, 0, this.particleCanvas.width, this.particleCanvas.height);
+            this.bgParticles.forEach((p, index) => {
+                p.x += p.speedX;
+                p.y += p.speedY;
+                p.life--;
+
+                if (p.life <= 0 && p.life !== Infinity -1 /* keep persistent ones */) { // Infinity-1 check for safety
+                    this.bgParticles.splice(index, 1);
+                    return;
+                }
+                
+                // Wrap persistent particles
+                if (p.life === Infinity -1) {
+                     if (p.x < 0) p.x = this.particleCanvas.width;
+                     if (p.x > this.particleCanvas.width) p.x = 0;
+                     if (p.y < 0) p.y = this.particleCanvas.height;
+                     if (p.y > this.particleCanvas.height) p.y = 0;
+                }
+
+
+                this.particleCtx.beginPath();
+                this.particleCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                this.particleCtx.fillStyle = p.color;
+                this.particleCtx.fill();
+            });
+
+            requestAnimationFrame(() => this.animateBackground());
+        }
+
+    } // End of SnakeMasterPlatinum class
+
+    // --- Initialize Game ---
+    window.addEventListener('load', () => {
+        const game = new SnakeMasterPlatinum();
+        window.platinumSnake = game; // For debugging
+    });
+
+    </script>
+</body>
+</html>
